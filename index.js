@@ -1,5 +1,7 @@
 console.log("Luis")
-
+console.log("benza")
+console.log("Guido")
+console.log("Nacho es un dios")
 //Clase nacho: Comandos para crear repo (siempre vacío)
 //git init (empezar repo)
 //git status
