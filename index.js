@@ -7,12 +7,13 @@
 //git commit -m "feat: first commit"
 //git push origin main
 
-const express = require("express");
+import express from 'express'
+import { connection } from './db.js';
 
 const app = express();
 const port = 9000;
 
-const users = [
+/*const users = [
     { id: 1, name: "Jane Messi" },
     { id: 2, name: "Jane Mess" },
     { id: 3, name: "Jane Mes" },
@@ -20,7 +21,7 @@ const users = [
 ]
 
 const menu = require('./menu.json');
-
+*/
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -44,12 +45,17 @@ app.get("/users/:id", (req, res) => {
 
 //Ejercicio 1
 app.get('/menu', (req, res) => {
-    res.json(menu)
+
+    connection.query("SELECT * FROM menu", (err, rows) => {
+        if (err) return res.status(500).json({ message: "Ha ocurrido un error" })
+        res.json(rows)
+    })
+    //res.json(menu)
 })
 
 //Ejercicio 2
 app.get('/menu/:id', (req, res) => {
-    const id = parseInt(req.params.id)
+    /*const id = parseInt(req.params.id)
 
     const plato = menu.find((plato => plato.id === id))
 
@@ -57,42 +63,73 @@ app.get('/menu/:id', (req, res) => {
         res.status(404).send("Dish not found")
     else
         res.status(200).json(plato)
+        */
+
+    const id = parseInt(req.params.id)
+    connection.query("SELECT * FROM menu WHERE id = ?",[id], (err, rows) => {
+        if (err) return res.status(500).json({ message: "Ha ocurrido un error" })
+        res.json(rows)
+    })
 
 })
 
 //Ejercicio 3
 
 app.get('/principales', (req, res) => {
-    const plato_principal = menu.filter((menu) => menu.tipo === 'principal')
+    /*const plato_principal = menu.filter((menu) => menu.tipo === 'principal')
 
-    res.json(plato_principal)
+    res.json(plato_principal)*/
+
+    connection.query("SELECT * FROM menu WHERE tipo = ?",["principal"], (err, rows) => {
+        if (err) return res.status(500).json({ message: "Ha ocurrido un error" })
+        res.json(rows)
+    })
 })
 
 //Ejercicio 4
 app.get('/postres', (req, res) => {
-    const postres = menu.filter((menu) => menu.tipo === 'postre')
+    /*const postres = menu.filter((menu) => menu.tipo === 'postre')
 
     res.json(postres)
+    */
+
+    connection.query("SELECT * FROM menu WHERE tipo = ?",["postre"], (err, rows) => {
+        if (err) return res.status(500).json({ message: "Ha ocurrido un error" })
+        res.json(rows)
+    })
 })
 
 //Ejercicio 5
 app.get('/bebidas', (req, res) => {
-    const bebidas = menu.filter((menu) => menu.tipo === 'bebida')
+    /*const bebidas = menu.filter((menu) => menu.tipo === 'bebida')
 
     res.json(bebidas)
+    */
+    connection.query("SELECT * FROM menu WHERE tipo = ?",["bebida"], (err, rows) => {
+        if (err) return res.status(500).json({ message: "Ha ocurrido un error" })
+        res.json(rows)
+    })
 })
 
 //Ejercicio 6
 
 app.post('/pedido', (req, res) => {
-    const pedido = req.body.productos
+    /*const pedido = req.body.productos
 
     const precio = pedido.reduce((precio_total, plato) => {
         const precioPlato = menu.find((plato_menu) => plato_menu.id === plato.id)
         return precio_total + precioPlato.precio * plato.cantidad
     }, 0)
 
-    res.json({"msj": "Pedido recibido", "precio": precio})
+    res.json({ "msj": "Pedido recibido", "precio": precio })
+    */
+    
+    const pedido = req.body.productos[0]
+
+    connection.query("SELECT * FROM menu WHERE id = ?",["principal"], (err, rows) => {
+        if (err) return res.status(500).json({ message: "Ha ocurrido un error" })
+        res.json(rows)
+    })
 })
 
 app.listen(port, () => {
