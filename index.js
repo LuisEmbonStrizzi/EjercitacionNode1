@@ -124,11 +124,20 @@ app.post('/pedido', (req, res) => {
     res.json({ "msj": "Pedido recibido", "precio": precio })
     */
     
-    const pedido = req.body.productos[0]
+    const pedido = req.body.productos
+    const pedidoId = pedido.map((elemento) => elemento.id)
+    const cantidadPedido = pedido.map((elemento) => elemento.cantidad)
 
-    connection.query("SELECT * FROM menu WHERE id = ?",["principal"], (err, rows) => {
+    connection.query(`SELECT precio FROM menu WHERE id IN (${
+        Array.from({ length: pedidoId.length }, (_, i) => i < pedidoId.length - 1 ? '?' : '?')
+    })`, [... pedidoId], (err, rows) => {
         if (err) return res.status(500).json({ message: "Ha ocurrido un error" })
-        res.json(rows)
+        
+        let precio_final = 0
+        for(let i; i < rows.length; i++){
+            precio_final += rows[i].precio * cantidadPedido[i]
+        }
+        res.json({ "msj": "Pedido recibido", "precio": precio_final })
     })
 })
 
